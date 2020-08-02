@@ -2,8 +2,29 @@ const path = require('path');
 
 const root = path.join(process.cwd(), '');
 
+const build = 'build';
+const client = 'client';
+const server = 'server';
+const src = 'src';
+
+const paths = {
+  buildAssetManifest: path.join(root, build, 'chunks.json'),
+  buildClient: path.join(root, build, client),
+  buildServer: path.join(root, build, server),
+  srcClient: path.join(root, src, client),
+  srcClientApp: path.join(root, src, client, 'App'),
+  srcServer: path.join(root, src, server),
+};
+
 const requireFunc = typeof __webpack_require__ === "function" ? __non_webpack_require__ : require;
 
-const runtimeRequire = (pathname) => requireFunc(path.join(root, pathname));
+const requireRoot = (pathname) =>  requireFunc(path.join(root, pathname));
 
-module.exports = runtimeRequire;
+const requireAssetManifest = () => requireFunc(paths.buildAssetManifest);
+
+module.exports = {
+  root,
+  paths,
+  requireRoot,
+  requireAssetManifest,
+};

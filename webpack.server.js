@@ -1,38 +1,30 @@
 const webpack = require('webpack');
-const path = require('path');
 const nodeExternals = require('webpack-node-externals');
 const NodemonPlugin = require('nodemon-webpack-plugin');
+const { paths } = require('./runtimeRequire');
 
-const pwd = process.cwd();
-const root = path.join(pwd, '');
+const { NODE_ENV = 'development' } = process.env;
 
-module.exports = {
-  mode: 'development',
-  entry: [
-    './server.js'
-  ],
-  output: {
-    path: path.join(root, 'build'),
-    publicPath: '/',
-    filename: 'server.js'
+const isDev = NODE_ENV === 'development';
+
+const baseConfig = {
+  mode: NODE_ENV,
+  entry: {
+    server: [
+      paths.srcServer,
+    ]
   },
-  devtool: 'inline-sourcemap',
+  output: {
+    path: paths.buildServer,
+    publicPath: '/',
+    filename: 'index.js'
+  },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin(),
     new NodemonPlugin(),
   ],
   target: 'node',
   externals: nodeExternals(),
-  watch: true,
-  watchOptions: {
-    aggregateTimeout: 200,
-    poll: 1000,
-    ignored: [
-      path.join(root, 'client.js'),
-      path.join(root, 'App.js'),
-    ]
-  },
   module: {
     rules: [
       {
@@ -45,3 +37,21 @@ module.exports = {
     ]
   }
 };
+
+if (isDev) {
+  baseConfig.plugins.unshift(
+    new webpack.HotModuleReplacementPlugin(),
+  );
+  baseConfig.devtool = 'inline-sourcemap';
+  baseConfig.watch = true;
+  baseConfig.watchOptions = {
+    aggregateTimeout: 200,
+      poll: 1000,
+      ignored: [
+        paths.srcClient,
+        paths.srcClientApp,
+    ]
+  };
+}
+
+module.exports = baseConfig;
