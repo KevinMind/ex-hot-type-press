@@ -1,16 +1,39 @@
-var http = require('http');
+import http from 'http';
+import React from 'react';
+import ReactDOM from 'react-dom/server';
+import express from 'express';
+import webpack from 'webpack';
 
-var express = require('express');
+import App from './App';
+
+const runtimeRequire = require('./runtimeRequire');
+
+const { PORT = 3000 } = process.env;
 
 var app = express();
 
-app.get("/", function(req, res) {
-  res.sendFile(__dirname + '/index.html');
+app.get("/", (req, res) => {
+  const markup = ReactDOM.renderToString(<App />);
+  res.end(`
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="utf-8">
+    <meta name=viewport content="width=device-width, initial-scale=1">
+    <title>Webpack Hot Middleware Example</title>
+  </head>
+  <body>
+  <div id="app">
+  ${markup}
+  </div>
+  <script src="/bundle.js"></script>
+  </body>
+  </html>
+  `)
 });
 
-// Step 1: Create & configure a webpack compiler
-var webpack = require('webpack');
-var webpackConfig = require(process.env.WEBPACK_CONFIG ? process.env.WEBPACK_CONFIG : './webpack.config');
+var webpackConfig = runtimeRequire('webpack.config');
+
 var compiler = webpack(webpackConfig);
 
 // Step 2: Attach the dev middleware to the compiler & the server
@@ -23,9 +46,12 @@ app.use(require("webpack-hot-middleware")(compiler, {
   log: console.log, path: '/__webpack_hmr', heartbeat: 10 * 1000
 }));
 
-if (require.main === module) {
-  var server = http.createServer(app);
-  server.listen(process.env.PORT || 1616, function() {
-    console.log("Listening on %j", server.address());
-  });
-}
+var server = http.createServer(app);
+server.listen(PORT, function(err) {
+  if (err) {
+    console.error(err);
+    process.exit(1);
+  } else {
+    console.log(`Listening on port: ${server.address()}`)
+  }
+});

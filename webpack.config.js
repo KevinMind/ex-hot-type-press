@@ -22,6 +22,9 @@ module.exports = {
     new webpack.HotModuleReplacementPlugin(),
     new webpack.NoEmitOnErrorsPlugin()
   ],
+  node: {
+    require: 'empty',
+  },
   module: {
     rules: [
       {
