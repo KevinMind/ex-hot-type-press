@@ -1,6 +1,7 @@
+const path = require('path');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
-const NodemonPlugin = require('nodemon-webpack-plugin');
+const StartServerPlugin = require('start-server-webpack-plugin');
 const { paths } = require('./runtimeRequire');
 
 const { NODE_ENV = 'development' } = process.env;
@@ -21,7 +22,6 @@ const baseConfig = {
   },
   plugins: [
     new webpack.NoEmitOnErrorsPlugin(),
-    new NodemonPlugin(),
   ],
   target: 'node',
   externals: nodeExternals(),
@@ -41,6 +41,11 @@ const baseConfig = {
 if (isDev) {
   baseConfig.plugins.unshift(
     new webpack.HotModuleReplacementPlugin(),
+    new StartServerPlugin({
+      name: 'index.js',
+      signal: false,
+      keyboard: true,
+    }),
   );
   baseConfig.devtool = 'inline-sourcemap';
   baseConfig.watch = true;

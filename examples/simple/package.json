@@ -1,0 +1,15 @@
+{
+  "name": "examples-simple",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "ex-hot-type-press": "file:../../",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1"
+  },
+  "scripts": {
+    "build": "srf build",
+    "start": "srf start"
+  }
+}

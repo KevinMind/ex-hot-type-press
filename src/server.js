@@ -1,12 +1,10 @@
 import http from 'http';
-import React from 'react';
-import ReactDOM from 'react-dom/server';
 import express from 'express';
 import webpack from 'webpack';
 
-import App from '../client/App';
+import { getMarkup } from '../src/server';
 
-const { requireRoot,  requireAssetManifest, paths } = require('../../runtimeRequire');
+const { requireSrc, requireAssetManifest, paths } = require('./runtimeRequire');
 
 const { PORT = 3000, NODE_ENV = 'development' } = process.env;
 
@@ -14,7 +12,7 @@ var app = express();
 
 if (NODE_ENV === 'development') {
   // Step 1: build client webpack bundle.
-  var webpackConfig = requireRoot('webpack.config');
+  var webpackConfig = requireSrc('./webpack.config');
   var compiler = webpack(webpackConfig);
 
 // Step 2: Attach the dev middleware to the compiler & the server
@@ -52,7 +50,7 @@ app.get("/", async (req, res) => {
     })
     .map(file => `<script src="${file}" async defer></script>`)
     .join('\n');
-  const markup = ReactDOM.renderToString(<App />);
+  const markup = getMarkup(req, res);
   res.end(`
   <!DOCTYPE html>
   <html>
